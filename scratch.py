@@ -69,13 +69,16 @@ def email_dates(dates):
 
 def scrape_and_send():
     print(str.format('Scraping dates at {}', str(datetime.datetime.now())))
-    page = fetch_dates_page()
-    dates = filter_acceptable_dates(extract_dates(page))
-    if dates:
-        print(str.format('Sending email with dates {}', dates))
-        email_dates(dates)
-    else:
-        print('Did not find any acceptable dates')
+    try:
+        page = fetch_dates_page()
+        dates = filter_acceptable_dates(extract_dates(page))
+        if dates:
+            print(str.format('Sending email with dates {}', dates))
+            email_dates(dates)
+        else:
+            print('Did not find any acceptable dates')
+    except Exception e:
+        print(str.format('Could not scrape dates. Exception: {}', e))
 
 if __name__ == '__main__':
     time.sleep(10) # Since the job is being run from launchd, need to wait for an internet connection

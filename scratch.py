@@ -1,4 +1,5 @@
 import json
+import time
 import datetime
 
 import mechanize
@@ -77,4 +78,5 @@ def scrape_and_send():
         print('Did not find any acceptable dates')
 
 if __name__ == '__main__':
+    time.sleep(10) # Since the job is being run from launchd, need to wait for an internet connection
     scrape_and_send()

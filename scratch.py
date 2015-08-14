@@ -1,6 +1,7 @@
 import json
 import time
 import datetime
+import logging
 
 import mechanize
 import dateutil.parser
@@ -17,26 +18,26 @@ def fetch_dates_page():
     br = mechanize.Browser()
     br.set_handle_robots(False)
 
-    print('1. Selecting test type')
+    logging.debug('1. Selecting test type')
     br.open('https://driverpracticaltest.direct.gov.uk')
     br.form = next(br.forms())
     br.submit(id='test-type-car')
 
-    print('2. Setting driving license number and special requirements')
+    logging.debug('2. Setting driving license number and special requirements')
     br.form = next(br.forms())
     br.form.set_value(options['license_number'], id='driving-licence')
     br.form.set_value(['false'], id='special-needs-none')
     br.submit()
 
-    print('3. Setting postcode')
+    logging.debug('3. Setting postcode')
     br.form = next(br.forms())
     br.form.set_value(options['postcode'], id='test-centres-input')
     br.submit()
 
-    print('4. Setting test centre')
+    logging.debug('4. Setting test centre')
     br.follow_link(text_regex=options['town'])
 
-    print('5. Setting date')
+    logging.debug('5. Setting date')
     br.form = next(br.forms())
     br.form.set_value(options['date'], id='test-choice-calendar')
     return br.submit().read()
@@ -77,7 +78,7 @@ def scrape_and_send():
             email_dates(dates)
         else:
             print('Did not find any acceptable dates')
-    except Exception e:
+    except Exception as e:
         print(str.format('Could not scrape dates. Exception: {}', e))
 
 if __name__ == '__main__':

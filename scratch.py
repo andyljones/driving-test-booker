@@ -12,7 +12,7 @@ from gmail import send_email
 def load_options():
     return json.load(open('resources/login_details.json'))
 
-def fetch_dates_page():
+def unbooked_fetch_dates_page():
     options = load_options()
 
     br = mechanize.Browser()
@@ -27,7 +27,6 @@ def fetch_dates_page():
     br.form = next(br.forms())
     br.form.set_value(options['license_number'], id='driving-licence')
     br.form.set_value(['false'], id='special-needs-none')
-    br.submit()
 
     logging.debug('3. Setting postcode')
     br.form = next(br.forms())
@@ -40,6 +39,26 @@ def fetch_dates_page():
     logging.debug('5. Setting date')
     br.form = next(br.forms())
     br.form.set_value(options['date'], id='test-choice-calendar')
+    return br.submit().read()
+
+def booked_fetch_dates_page():
+    options = load_options()
+
+    br = mechanize.Browser()
+    br.set_handle_robots(False)
+
+    logging.debug('1. Log in')
+    br.open('https://driverpracticaltest.direct.gov.uk/login')
+    br.form = next(br.forms())
+    br.form.set_value(options['license_number'], id='driving-licence-number')
+    br.form.set_value(options['application_reference'], id='application-reference-number')
+    br.submit()
+
+    logging.debug('2. Choosing to change date')
+    br.follow_link(text_regex='Change', nr=0)
+
+    logging.debug('3. Choosing to find earliest possible date')
+    br.form = next(br.forms())
     return br.submit().read()
 
 def parse_date(s):
@@ -71,7 +90,7 @@ def email_dates(dates):
 def scrape_and_send():
     print(str.format('Scraping dates at {}', str(datetime.datetime.now())))
     try:
-        page = fetch_dates_page()
+        page = booked_fetch_dates_page()
         dates = filter_acceptable_dates(extract_dates(page))
         if dates:
             print(str.format('Sending email with dates {}', dates))

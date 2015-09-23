@@ -2,6 +2,7 @@ import json
 import time
 import datetime
 import logging
+import pdb
 
 import mechanize
 import dateutil.parser
@@ -27,6 +28,7 @@ def unbooked_fetch_dates_page():
     br.form = next(br.forms())
     br.form.set_value(options['license_number'], id='driving-licence')
     br.form.set_value(['false'], id='special-needs-none')
+    br.submit()
 
     logging.debug('3. Setting postcode')
     br.form = next(br.forms())
@@ -65,7 +67,7 @@ def parse_date(s):
     return dateutil.parser.parse(s, dayfirst=True)
 
 def extract_dates(page):
-    soup = BeautifulSoup(page)
+    soup = BeautifulSoup(page, "html.parser")
     return [parse_date(d.string) for d in soup.find_all(class_='slotDateTime')]
 
 def filter_acceptable_dates(dates):
@@ -73,7 +75,7 @@ def filter_acceptable_dates(dates):
     date_range = [parse_date(s).date() for s in options['date_range']]
     time_range = [parse_date(s).time() for s in options['time_range']]
 
-    acceptable_dates = [d for d in dates if date_range[0] <= d.date() <= date_range[1]]
+    acceptable_dates = [d for d in dates if date_range[0] <= d.date() <= date_range[1] and d.weekday() == 0]
     acceptable_times = [d for d in acceptable_dates if time_range[0] <= d.time() <= time_range[1]]
 
     return acceptable_times
@@ -90,7 +92,7 @@ def email_dates(dates):
 def scrape_and_send():
     print(str.format('Scraping dates at {}', str(datetime.datetime.now())))
     try:
-        page = booked_fetch_dates_page()
+        page = unbooked_fetch_dates_page()
         dates = filter_acceptable_dates(extract_dates(page))
         if dates:
             print(str.format('Sending email with dates {}', dates))
@@ -101,5 +103,4 @@ def scrape_and_send():
         print(str.format('Could not scrape dates. Exception: {}', e))
 
 if __name__ == '__main__':
-    time.sleep(10) # Since the job is being run from launchd, need to wait for an internet connection
     scrape_and_send()

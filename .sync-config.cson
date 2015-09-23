@@ -1,0 +1,16 @@
+remote:
+  host: "aws-t2"
+  user: "ec2-user"
+  path: "~/test-scraper"
+behaviour:
+  uploadOnSave: true
+  syncDownOnOpen: true
+  forgetConsole: false
+  autoHideConsole: true
+  alwaysSyncAll: false
+option:
+  deleteFiles: false
+  exclude: [
+    ".sync-config.cson"
+    ".git"
+  ]

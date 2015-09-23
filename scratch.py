@@ -92,7 +92,10 @@ def email_dates(dates):
 def scrape_and_send():
     print(str.format('Scraping dates at {}', str(datetime.datetime.now())))
     try:
-        page = unbooked_fetch_dates_page()
+        if load_options()['already_booked']
+            page = unbooked_fetch_dates_page()
+        else
+            page = booked_fetch_dates_page()
         dates = filter_acceptable_dates(extract_dates(page))
         if dates:
             print(str.format('Sending email with dates {}', dates))

@@ -91,19 +91,21 @@ def email_dates(dates):
 
 def scrape_and_send():
     print(str.format('Scraping dates at {}', str(datetime.datetime.now())))
-    try:
-        if load_options()['already_booked']
-            page = unbooked_fetch_dates_page()
-        else
-            page = booked_fetch_dates_page()
-        dates = filter_acceptable_dates(extract_dates(page))
-        if dates:
-            print(str.format('Sending email with dates {}', dates))
-            email_dates(dates)
-        else:
-            print('Did not find any acceptable dates')
-    except Exception as e:
-        print(str.format('Could not scrape dates. Exception: {}', e))
+    # try:
+    if load_options()['already_booked']:
+        page = booked_fetch_dates_page()
+    else:
+        page = unbooked_fetch_dates_page()
+
+    dates = filter_acceptable_dates(extract_dates(page))
+
+    if dates:
+        print(str.format('Sending email with dates {}', dates))
+        email_dates(dates)
+    else:
+        print('Did not find any acceptable dates')
+    # except Exception as e:
+    #     print(str.format('Could not scrape dates. Exception: {}', e))
 
 if __name__ == '__main__':
     scrape_and_send()
